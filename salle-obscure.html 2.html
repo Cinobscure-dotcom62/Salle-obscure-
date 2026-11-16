@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Salle Obscure : films et séries libres de droits à regarder en entier, et grands titres avec leur bande-annonce.">
+<title>Salle Obscure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,800;1,800&family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: streaming platform, single dark look. Header bar, full-width hero carousel, genre bar with icons, horizontal rows of posters; detail opens in a dialog */
+:root {
+  --bg: #05070d; --surface: #0d121c; --surface-2: #151c2a; --line: #232c3d;
+  --fg: #f3f6fb; --muted: #9aa6ba; --accent: #1f7bff; --accent-2: #4da0ff; --accent-ink: #ffffff;
+  --logo: "Barlow Condensed", Impact, "Arial Narrow", sans-serif;
+  --hero: "Cinzel", Georgia, "Times New Roman", serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body { font-family: var(--body); font-size: 15px; line-height: 1.5; overflow-x: hidden; }
+.wrap { max-width: 1440px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+button, input { font: inherit; color: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Header */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: linear-gradient(to bottom, rgba(5,7,13,.95), rgba(5,7,13,.7)); backdrop-filter: blur(8px); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+header.top .wrap { display: flex; align-items: center; gap: 28px; padding-block: 12px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex: none; }
+.logo svg { width: 46px; height: 46px; }
+.logo .txt { font-family: var(--logo); line-height: .82; text-transform: uppercase; font-size: 26px; }
+.logo .txt b { display: block; font-weight: 800; color: var(--fg); }
+.logo .txt i { display: block; font-weight: 800; color: var(--accent); font-size: 30px; }
+nav.menu { display: flex; gap: 6px; flex: 1; min-width: 0; }
+nav.menu button { display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 10px 14px; cursor: pointer; color: var(--fg); font-weight: 500; border-bottom: 2px solid transparent; white-space: nowrap; }
+nav.menu button svg { color: var(--muted); }
+nav.menu button[aria-current="page"] { color: var(--accent-2); border-color: var(--accent); }
+nav.menu button[aria-current="page"] svg { color: var(--accent); }
+.search { display: flex; align-items: center; gap: 8px; background: rgba(13,18,28,.85); border: 1px solid var(--line); border-radius: 999px; padding: 0 16px; width: 320px; min-width: 0; }
+.search input { background: none; border: 0; outline: none; padding: 9px 0; width: 100%; min-width: 0; }
+.search svg { color: var(--accent-2); }
+.avatar { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--fg); display: grid; place-items: center; flex: none; }
+
+/* Hero */
+.hero { position: relative; margin-top: -70px; min-height: 560px; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; transition: opacity .6s ease; }
+.hero-bg canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5,7,13,.92) 0%, rgba(5,7,13,.55) 40%, rgba(5,7,13,0) 70%), linear-gradient(0deg, var(--bg) 0%, rgba(5,7,13,0) 30%); pointer-events: none; }
+.hero .wrap { position: relative; z-index: 2; padding-block: 140px 120px; }
+.hero-text { max-width: 640px; margin-left: clamp(0px, 6vw, 96px); }
+.badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(31,123,255,.18); color: var(--accent-2); border-radius: 999px; padding: 4px 12px 4px 6px; font-weight: 600; font-size: 14px; }
+.badge .dot { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; color: #fff; }
+.badge .dot svg { width: 12px; height: 12px; }
+.hero h1 { font-family: var(--hero); font-weight: 700; font-size: clamp(34px, 5.2vw, 64px); letter-spacing: .28em; line-height: 1.1; text-transform: uppercase; margin: 14px 0 12px; text-wrap: balance; }
+.hero p.tag { font-size: 19px; line-height: 1.4; margin: 0 0 16px; max-width: 34ch; color: #e6ebf3; }
+.facts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; color: #dfe5ee; font-size: 15px; }
+.facts span { display: inline-flex; align-items: center; gap: 6px; }
+.facts .sep { width: 1px; height: 16px; background: var(--line); }
+.facts .age { border: 1.5px solid #dfe5ee; border-radius: 3px; padding: 0 4px; font-size: 12px; font-weight: 700; }
+.facts .star { color: var(--accent-2); }
+.actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 24px; }
+.btn { display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,.35); background: rgba(5,7,13,.4); padding: 12px 24px; border-radius: 999px; cursor: pointer; font-weight: 600; text-decoration: none; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 6px 24px rgba(31,123,255,.45); }
+.btn.primary:hover { background: #3a8bff; }
+.arrow { position: absolute; top: 46%; z-index: 3; width: 52px; height: 52px; border-radius: 50%; background: rgba(5,7,13,.75); border: 1px solid var(--line); display: grid; place-items: center; cursor: pointer; }
+.arrow.prev { left: max(12px, env(safe-area-inset-left, 0px)); }
+.arrow.next { right: max(12px, env(safe-area-inset-right, 0px)); }
+.dots { position: absolute; left: 50%; transform: translateX(-50%); bottom: 96px; z-index: 3; display: flex; gap: 6px; }
+.dots button { width: 10px; height: 10px; border-radius: 999px; border: 0; background: rgba(255,255,255,.45); cursor: pointer; padding: 0; transition: width .3s; }
+.dots button[aria-current="true"] { width: 32px; background: var(--accent); }
+
+/* Genre bar */
+.genres { position: relative; z-index: 4; margin-top: -72px; }
+.genre-bar { display: flex; background: rgba(13,18,28,.92); border: 1px solid var(--line); border-radius: 16px; padding: 12px 8px; overflow-x: auto; scrollbar-width: none; }
+.genre-bar::-webkit-scrollbar { display: none; }
+.genre-bar button { flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: 0; border-right: 1px solid var(--line); padding: 6px 18px; cursor: pointer; font-size: 14px; font-weight: 500; }
+.genre-bar button:last-child { border-right: 0; }
+.genre-bar button svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; color: var(--accent); fill: rgba(31,123,255,.25); }
+.genre-bar button[aria-pressed="true"] { color: var(--accent-2); }
+.genre-bar button[aria-pressed="true"] svg { fill: var(--accent); }
+
+/* Rows */
+main { padding-block: 28px 64px; display: flex; flex-direction: column; gap: 34px; }
+.row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.row-head h2 { margin: 0; font-size: 24px; font-weight: 700; border-left: 4px solid var(--accent); padding-left: 14px; line-height: 1.1; }
+.more { background: none; border: 0; color: var(--accent-2); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(170px, 1fr); gap: 12px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.row .card { scroll-snap-align: start; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px 12px; }
+.card { background: none; border: 0; padding: 0; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.card .poster { transition: transform .2s ease, box-shadow .2s ease; }
+.card:hover .poster, .card:focus-visible .poster { transform: scale(1.03); box-shadow: 0 0 0 2px var(--accent), 0 10px 30px rgba(31,123,255,.3); }
+.card .sub { font-size: 13px; color: var(--muted); }
+.empty { padding: 48px 0; color: var(--muted); text-align: center; }
+.about { max-width: 65ch; color: #dfe5ee; }
+.about h2 { font-size: 28px; }
+
+/* Generated poster */
+.poster { position: relative; aspect-ratio: 10/9; max-width: 100%; border-radius: 6px; overflow: hidden; isolation: isolate; color: #fff; border: 1px solid rgba(255,255,255,.08); }
+.poster .shape { position: absolute; border-radius: 50%; z-index: -1; }
+.poster .ptitle { position: absolute; left: 8px; right: 8px; bottom: 10px; text-align: center; font-family: var(--logo); font-weight: 800; text-transform: uppercase; line-height: .9; text-shadow: 0 2px 12px rgba(0,0,0,.6); overflow-wrap: break-word; }
+.poster .kind { position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: rgba(0,0,0,.45); padding: 2px 6px; border-radius: 3px; }
+.poster .full { position: absolute; top: 8px; left: 50px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: var(--accent); padding: 2px 6px; border-radius: 3px; }
+.lic { font-size: 13px; color: var(--muted); }
+.lic a { color: var(--accent-2); }
+.poster .saved { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; }
+.poster .saved svg { width: 12px; height: 12px; }
+
+/* Dialog */
+dialog { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 14px; padding: 0; width: min(820px, calc(100% - 32px)); max-height: calc(100% - 48px); }
+dialog::backdrop { background: rgba(2,4,8,.8); }
+.dlg { display: grid; grid-template-columns: 240px 1fr; gap: 24px; padding: 24px; }
+.dlg .poster { aspect-ratio: 2/3; }
+.dlg h2 { font-family: var(--hero); letter-spacing: .14em; font-size: 32px; line-height: 1.15; text-transform: uppercase; margin: 10px 0; text-wrap: balance; }
+.dlg dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 16px 0 0; font-size: 14px; }
+.dlg dt { color: var(--muted); }
+.dlg dd { margin: 0; }
+.close { position: absolute; top: 10px; right: 10px; border: 0; background: var(--surface-2); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; }
+.player { display: flex; flex-direction: column; gap: 10px; padding: 0 24px 24px; }
+.player h3 { margin: 0; font-size: 16px; }
+.player video { width: 100%; max-width: 100%; border-radius: 8px; background: #000; aspect-ratio: 16/9; }
+.drop { border: 1px dashed var(--line); border-radius: 10px; padding: 22px 16px; text-align: center; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.drop.over { border-color: var(--accent); background: var(--surface-2); }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.drop label.btn { position: relative; }
+.drop small { font-size: 12px; }
+.chip { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 4px 12px; font-size: 13px; cursor: pointer; color: var(--muted); }
+footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+footer .wrap { padding-block: 20px; }
+
+@media (max-width: 1100px) {
+  nav.menu button span { display: none; }
+  .search { width: 220px; }
+}
+@media (max-width: 760px) {
+  header.top .wrap { flex-wrap: wrap; gap: 10px 14px; }
+  .logo svg { width: 38px; height: 38px; }
+  .search { order: 3; flex: 1 1 100%; width: auto; }
+  nav.menu { order: 2; flex: 1; justify-content: flex-end; gap: 0; }
+  nav.menu button { padding: 8px; }
+  .avatar { display: none; }
+  .hero { min-height: 0; margin-top: 0; }
+  .hero .wrap { padding-block: 40px 110px; }
+  .hero::after { background: linear-gradient(0deg, var(--bg) 0%, rgba(5,7,13,.75) 55%, rgba(5,7,13,.35) 100%); }
+  .hero p.tag { font-size: 16px; }
+  .hero h1 { font-size: 26px; letter-spacing: .14em; }
+  .hero-text { margin-left: 0; }
+  .arrow { display: none; }
+  .dots { bottom: 84px; }
+  .row { grid-auto-columns: 42%; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .dlg { grid-template-columns: 1fr; }
+  .dlg .poster { width: 150px; }
+}
+@media (prefers-reduced-motion: reduce) { .card .poster, .hero-bg, .dots button { transition: none; } }
+</style>
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#accueil" aria-label="Salle Obscure, accueil">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="#1f7bff" stroke-width="3.5"/><circle cx="24" cy="24" r="15" fill="#f3f6fb"/><g fill="#05070d"><circle cx="24" cy="15.5" r="4"/><circle cx="24" cy="32.5" r="4"/><circle cx="15.5" cy="24" r="4"/><circle cx="32.5" cy="24" r="4"/><circle cx="24" cy="24" r="1.8"/></g><path d="M36 38 L45 45" stroke="#1f7bff" stroke-width="3.5" stroke-linecap="round"/></svg>
+      <span class="txt"><b>Salle</b><i>Obscure</i></span>
+    </a>
+    <nav class="menu" aria-label="Menu principal">
+      <button data-view="accueil" aria-current="page"><svg class="i" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/></svg><span>Accueil</span></button>
+      <button data-view="films"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="m3 8 3-5 4 3 4-3 4 3"/></svg><span>Films</span></button>
+      <button data-view="series"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="m8 2 4 4 4-4"/></svg><span>Séries</span></button>
+      <button data-view="ma-liste"><svg class="i" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg><span>Ma liste</span></button>
+      <button data-view="a-propos"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>À propos</span></button>
+    </nav>
+    <label class="search" for="q">
+      <input id="q" type="search" placeholder="Rechercher un film, une série…" autocomplete="off">
+      <svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    </label>
+    <div class="avatar" aria-hidden="true"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div>
+  </div>
+</header>
+
+<div id="home">
+  <section class="hero" aria-roledescription="carrousel" aria-label="À la une">
+    <div class="hero-bg" id="hero-bg"><canvas id="hero-canvas"></canvas></div>
+    <button class="arrow prev" id="prev" aria-label="Précédent"><svg class="i" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button>
+    <button class="arrow next" id="next" aria-label="Suivant"><svg class="i" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+    <div class="wrap"><div class="hero-text" id="hero-text"></div></div>
+    <div class="dots" id="dots"></div>
+  </section>
+  <div class="genres"><div class="wrap"><div class="genre-bar" id="genre-bar"></div></div></div>
+</div>
+
+<main class="wrap" id="main"></main>
+
+<footer><div class="wrap">Salle Obscure · Films « En entier » : domaine public aux États-Unis ou Creative Commons BY, hébergés par Internet Archive. Autres titres : bandes-annonces officielles uniquement.</div></footer>
+
+<dialog id="dlg" aria-labelledby="dlg-title"></dialog>
+
+<script>
+/* true : les films du domaine public US se lisent sur le site. false : seulement un lien vers Internet Archive. */
+const LECTURE_DOMAINE_PUBLIC_US = false;
+const PD_US = "Domaine public aux États-Unis";
+const CCBY = "Creative Commons BY 3.0";
+const FREE = [
+  { id:"general", type:"film", title:"Le Mécano de la Générale", year:1926, len:"1h 19min", age:"Tous publics", by:"Buster Keaton, Clyde Bruckman", genres:["Comédie","Action","Aventure"], c:["#4a4036","#0d0b09","#e9dcc2"], badge:"Classique muet",
+    tag:"Un mécanicien poursuit seul l'armée qui lui a volé sa locomotive, et sa fiancée.",
+    syn:"Pendant la guerre de Sécession, Johnnie Gray, refusé par l'armée, voit sa locomotive bien-aimée volée par des espions nordistes avec sa fiancée à bord. Il se lance seul à leur poursuite. Un sommet du burlesque, avec des cascades réelles.",
+    free:{ url:"https://archive.org/download/The_General_Buster_Keaton/The_General_512kb.mp4", page:"https://archive.org/details/The_General_Buster_Keaton", lic:PD_US, licUrl:"https://creativecommons.org/publicdomain/mark/1.0/", src:"Internet Archive" } },
+  { id:"sherlockjr", type:"film", title:"Sherlock Junior", year:1924, len:"45min", age:"Tous publics", by:"Buster Keaton", genres:["Comédie"], c:["#3b3a44","#0b0b0e","#d9d4c4"],
+    syn:"Un projectionniste qui rêve d'être détective s'endort pendant une séance et entre littéralement dans le film. Un des films les plus inventifs du cinéma muet.",
+    free:{ url:"https://archive.org/download/sherlockjr1924_201909/Sherlock%20Jr.%20-%20Buster%20Keaton%20(1924)%20HD%20%5B720p%5D.mp4", page:"https://archive.org/details/sherlockjr1924_201909", lic:PD_US, licUrl:"https://creativecommons.org/publicdomain/mark/1.0/", src:"Internet Archive" } },
+  { id:"girlfriday", type:"film", title:"La Dame du vendredi", year:1940, len:"1h 32min", age:"Tous publics", by:"Howard Hawks", genres:["Comédie","Romance"], c:["#2e3440","#0a0c10","#e8d6a8"], badge:"Comédie culte",
+    tag:"Un rédacteur en chef rusé fait tout pour garder sa meilleure journaliste, qui est aussi son ex-femme.",
+    syn:"Hildy Johnson, reporter vedette, annonce à son ex-mari et patron Walter Burns qu'elle quitte le journal pour se remarier. Walter lui confie un dernier reportage pour la retenir. Dialogues ultra-rapides, avec Cary Grant et Rosalind Russell.",
+    free:{ url:"https://archive.org/download/his_girl_friday/his_girl_friday_512kb.mp4", page:"https://archive.org/details/his_girl_friday", lic:PD_US, licUrl:"https://creativecommons.org/publicdomain/mark/1.0/", src:"Internet Archive" } },
+  { id:"charade", type:"film", title:"Charade", year:1963, len:"1h 53min", age:"10+", by:"Stanley Donen", genres:["Thriller","Romance","Comédie"], c:["#5a1e2a","#12060a","#f0c08a"], badge:"Suspense à Paris",
+    tag:"À Paris, une veuve est traquée par ceux qui cherchent le butin caché de son mari.",
+    syn:"Après la mort mystérieuse de son mari, Regina découvre qu'il avait volé une fortune. Trois anciens complices la menacent, et un charmant inconnu lui propose son aide. Avec Audrey Hepburn et Cary Grant.",
+    free:{ url:"https://archive.org/download/charade_202604/Charade.ia.mp4", page:"https://archive.org/details/charade_202604", lic:PD_US, licUrl:"https://creativecommons.org/publicdomain/mark/1.0/", src:"Internet Archive" } },
+  { id:"nuit", type:"film", title:"La Nuit des morts-vivants", year:1968, len:"1h 36min", age:"16+", by:"George A. Romero", genres:["Horreur"], c:["#2b2b2b","#050505","#d8d8d8"], badge:"Classique de l'horreur",
+    tag:"Barricadés dans une ferme, sept inconnus tentent de survivre à une nuit d'horreur.",
+    syn:"Des morts reviennent à la vie et attaquent les vivants. Réfugiés dans une maison isolée, un groupe d'inconnus doit tenir jusqu'au matin. Le film qui a inventé le zombie moderne.",
+    free:{ url:"https://archive.org/download/NightOfTheLivingDead-MPEG/NightOfTheLivingDead_512kb.mp4", page:"https://archive.org/details/NightOfTheLivingDead-MPEG", lic:PD_US, licUrl:"https://creativecommons.org/publicdomain/mark/1.0/", src:"Internet Archive" } },
+  { id:"bigbuck", type:"film", title:"Big Buck Bunny", year:2008, len:"10min", age:"Tous publics", by:"Sacha Goedegebure (Blender Foundation)", genres:["Animation","Comédie"], c:["#3f7a3a","#0e1f0d","#f4e27a"], badge:"Animation libre",
+    tag:"Un gros lapin au grand cœur décide de donner une leçon à trois rongeurs farceurs.",
+    syn:"Un lapin paisible est harcelé par trois petits rongeurs moqueurs. Sa revanche sera digne d'un dessin animé. Court métrage réalisé avec des logiciels libres.",
+    free:{ url:"https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4", page:"https://archive.org/details/BigBuckBunny_124", lic:CCBY, licUrl:"https://creativecommons.org/licenses/by/3.0/", src:"Internet Archive", credit:"© Blender Foundation, www.bigbuckbunny.org" } },
+  { id:"sintel", type:"film", title:"Sintel", year:2010, len:"15min", age:"10+", by:"Colin Levy (Blender Foundation)", genres:["Animation","Aventure"], c:["#3b4a63","#0b0f18","#f2a65a"], badge:"Animation libre",
+    tag:"Une jeune guerrière parcourt le monde pour retrouver son bébé dragon.",
+    syn:"Sintel recueille un bébé dragon blessé et s'attache à lui. Quand il est enlevé, elle part seule à sa recherche à travers des terres hostiles. Court métrage réalisé avec des logiciels libres.",
+    free:{ url:"https://archive.org/download/Sintel/sintel-2048-surround.mp4", page:"https://archive.org/details/Sintel", lic:CCBY, licUrl:"https://creativecommons.org/licenses/by/3.0/", src:"Internet Archive", credit:"© Blender Foundation, www.sintel.org" } },
+  { id:"elephants", type:"film", title:"Elephants Dream", year:2006, len:"11min", age:"10+", by:"Bassam Kurdali (Blender Foundation)", genres:["Animation","Science-Fiction"], c:["#5a4a2a","#120e08","#9fd0e8"],
+    syn:"Deux personnages explorent une machine gigantesque et étrange. L'un y voit des merveilles, l'autre des dangers. Le premier film d'animation « libre » de l'histoire.",
+    free:{ url:"https://archive.org/download/ElephantsDream/ed_1024.mp4", page:"https://archive.org/details/ElephantsDream", lic:CCBY, licUrl:"https://creativecommons.org/licenses/by/3.0/", src:"Internet Archive", credit:"© Blender Foundation, www.elephantsdream.org" } },
+  { id:"superman41", type:"serie", title:"Superman", year:1941, end:1943, len:"Épisode 1 disponible", age:"Tous publics", by:"Dave Fleischer (Fleischer Studios)", genres:["Animation","Action"], c:["#1c3f8a","#070f22","#ff4a3d"],
+    syn:"La série de dessins animés qui a fait voler Superman pour la première fois. Dans ce premier épisode, un savant fou menace Metropolis avec un canon électrique.",
+    free:{ url:"https://archive.org/download/superman_1941/superman_1941_512kb.mp4", page:"https://archive.org/details/superman_1941", lic:PD_US, licUrl:"https://creativecommons.org/publicdomain/mark/1.0/", src:"Internet Archive", ep:"Épisode 1 · Superman (The Mad Scientist), 10 min" } },
+  { id:"holmes54", type:"serie", title:"Sherlock Holmes", year:1954, end:1955, len:"Épisode 1 disponible", age:"Tous publics", by:"Sheldon Reynolds", genres:["Thriller"], c:["#3a2f24","#0c0a08","#d8b98a"],
+    syn:"Les enquêtes du célèbre détective et du docteur Watson, tournées en France. Dans ce premier épisode, une ballerine timide est mêlée à une affaire de meurtre.",
+    free:{ url:"https://archive.org/download/SherlockHolmes-TheCaseoftheShyBallerina/TheCaseoftheShyBallerina_512kb.mp4", page:"https://archive.org/details/SherlockHolmes-TheCaseoftheShyBallerina", lic:PD_US, licUrl:"https://creativecommons.org/publicdomain/mark/1.0/", src:"Internet Archive", ep:"Épisode 1 · The Case of the Shy Ballerina, 26 min" } },
+];
+const RECENT = [
+  { id:"dune2", type:"film", title:"Dune : Deuxième partie", year:2024, len:"2h 46min", age:"13+", by:"Denis Villeneuve", genres:["Science-Fiction","Aventure"], c:["#b5622a","#1e0d05","#f6c98c"],
+    syn:"Paul Atréides s'allie aux Fremen pour venger sa famille, tout en redoutant l'avenir terrible qu'il entrevoit s'il accepte son destin." },
+  { id:"oppenheimer", type:"film", title:"Oppenheimer", year:2023, len:"3h 00min", age:"13+", by:"Christopher Nolan", genres:["Drame"], c:["#7a3b12","#120804","#ffb35c"],
+    syn:"Le portrait du physicien qui a dirigé la création de la bombe atomique, et le prix moral et politique qu'il a payé ensuite." },
+  { id:"topgun", type:"film", title:"Top Gun : Maverick", year:2022, len:"2h 11min", age:"Tous publics", by:"Joseph Kosinski", genres:["Action","Aventure"], c:["#8a6a2a","#160f05","#f2d58a"],
+    syn:"Trente ans après, le pilote Pete « Maverick » Mitchell doit former une nouvelle génération de pilotes pour une mission presque impossible." },
+  { id:"spiderverse2", type:"film", title:"Spider-Man : Across the Spider-Verse", year:2023, len:"2h 20min", age:"Tous publics", by:"Joaquim Dos Santos, Kemp Powers, Justin K. Thompson", genres:["Animation","Action"], c:["#5b1f7a","#12061a","#ff4fa3"],
+    syn:"Miles Morales traverse le multivers et découvre une société entière de Spider-Men, qui ne voient pas tous les choses comme lui." },
+  { id:"barbie", type:"film", title:"Barbie", year:2023, len:"1h 54min", age:"Tous publics", by:"Greta Gerwig", genres:["Comédie"], c:["#d94a8c","#3a0d22","#ffd1e6"],
+    syn:"Chassée de son monde parfait après une crise existentielle, Barbie part dans le monde réel avec Ken et découvre qu'il n'est pas du tout comme prévu." },
+  { id:"eeaao", type:"film", title:"Everything Everywhere All at Once", year:2022, len:"2h 19min", age:"12+", by:"Daniel Kwan, Daniel Scheinert", genres:["Science-Fiction","Comédie","Action"], c:["#3b5a2a","#0b1208","#f2e05a"],
+    syn:"Une gérante de laverie débordée découvre qu'elle peut emprunter les talents de ses versions dans d'autres univers, juste à temps pour sauver le multivers." },
+  { id:"anatomie", type:"film", title:"Anatomie d'une chute", year:2023, len:"2h 31min", age:"12+", by:"Justine Triet", genres:["Thriller","Drame"], c:["#4a5a66","#0c1013","#e8e2d4"],
+    syn:"Un homme est retrouvé mort au pied de son chalet. Sa femme, écrivaine, est accusée. Un procès qui dissèque leur couple. Palme d'or 2023." },
+  { id:"montecristo", type:"film", title:"Le Comte de Monte-Cristo", year:2024, len:"2h 58min", age:"10+", by:"Matthieu Delaporte, Alexandre de La Patellière", genres:["Aventure","Drame"], c:["#1f3a4a","#070e12","#e3c27a"],
+    syn:"Emprisonné à tort le jour de son mariage, Edmond Dantès s'évade après quatorze ans et revient, riche et méconnaissable, pour se venger." },
+  { id:"gladiator2", type:"film", title:"Gladiator II", year:2024, len:"2h 28min", age:"13+", by:"Ridley Scott", genres:["Action","Aventure"], c:["#8a4a1a","#1a0c04","#f0c070"],
+    syn:"Des années après la mort de Maximus, Lucius est réduit en esclavage et doit combattre dans l'arène de Rome pour retrouver sa liberté." },
+  { id:"viceversa2", type:"film", title:"Vice-Versa 2", year:2024, len:"1h 36min", age:"Tous publics", by:"Kelsey Mann", genres:["Animation","Comédie"], c:["#2a6aa8","#081626","#ffcf4a"],
+    syn:"Riley devient ado, et de nouvelles émotions débarquent dans sa tête, dont Anxiété, bien décidée à prendre les commandes." },
+  { id:"substance", type:"film", title:"The Substance", year:2024, len:"2h 21min", age:"16+", by:"Coralie Fargeat", genres:["Horreur","Science-Fiction"], c:["#c2c2c2","#101010","#ff3b6b"],
+    syn:"Une star vieillissante essaie un produit qui crée une version plus jeune d'elle-même. Mais il y a des règles, et elles sont strictes." },
+  { id:"avatar2", type:"film", title:"Avatar : La Voie de l'eau", year:2022, len:"3h 12min", age:"Tous publics", by:"James Cameron", genres:["Science-Fiction","Aventure"], c:["#0f5a7a","#03121a","#6fe0ff"],
+    syn:"Jake Sully et sa famille fuient vers les clans des océans de Pandora quand une menace familière revient les traquer." },
+  { id:"tlou", type:"serie", title:"The Last of Us", year:2023, len:"Depuis 2023", age:"16+", by:"Craig Mazin, Neil Druckmann", genres:["Drame","Horreur","Aventure"], c:["#3a4a2a","#0b0f08","#d8c89a"],
+    syn:"Vingt ans après une pandémie, un passeur endurci doit escorter une adolescente à travers des États-Unis dévastés. Elle est peut-être la clé d'un remède." },
+  { id:"mercredi", type:"serie", title:"Mercredi", year:2022, len:"Depuis 2022", age:"12+", by:"Alfred Gough, Miles Millar", genres:["Comédie","Horreur"], c:["#2a2a3a","#08080c","#c9c9ff"],
+    syn:"Mercredi Addams arrive à l'académie Nevermore et enquête sur une série de meurtres, avec son sens de l'humour très particulier." },
+  { id:"arcane", type:"serie", title:"Arcane", year:2021, end:2024, len:"2 saisons", age:"12+", by:"Christian Linke, Alex Yee", genres:["Animation","Action","Drame"], c:["#3a1f5a","#0c0614","#4ae0ff"],
+    syn:"Deux sœurs séparées grandissent dans deux villes opposées, Piltover la riche et Zaun la ville basse, jusqu'à devenir ennemies." },
+  { id:"squidgame", type:"serie", title:"Squid Game", year:2021, end:2025, len:"3 saisons", age:"16+", by:"Hwang Dong-hyuk", genres:["Thriller","Drame"], c:["#c2185b","#1a0410","#4affc8"],
+    syn:"Des centaines de personnes criblées de dettes acceptent de participer à des jeux d'enfants pour une fortune. Perdre signifie mourir." },
+  { id:"thebear", type:"serie", title:"The Bear", year:2022, len:"Depuis 2022", age:"12+", by:"Christopher Storer", genres:["Drame","Comédie"], c:["#2a4a6a","#08111a","#ffb04a"],
+    syn:"Un jeune chef de la haute gastronomie revient à Chicago pour reprendre la sandwicherie familiale en plein chaos après la mort de son frère." },
+  { id:"shogun", type:"serie", title:"Shōgun", year:2024, len:"Depuis 2024", age:"16+", by:"Rachel Kondo, Justin Marks", genres:["Drame","Aventure"], c:["#5a1a1a","#120505","#f0d9a0"],
+    syn:"Japon, 1600 : un navigateur anglais échoue sur les côtes et se retrouve pris dans la lutte de pouvoir d'un seigneur rusé." },
+  { id:"severance", type:"serie", title:"Severance", year:2022, len:"Depuis 2022", age:"12+", by:"Dan Erickson", genres:["Science-Fiction","Thriller"], c:["#1a4a5a","#061014","#d8f0f0"],
+    syn:"Des employés ont accepté une opération qui sépare leurs souvenirs du travail de ceux de leur vie privée. Jusqu'à ce qu'ils posent des questions." },
+  { id:"hotd", type:"serie", title:"House of the Dragon", year:2022, len:"Depuis 2022", age:"16+", by:"Ryan Condal, George R. R. Martin", genres:["Aventure","Drame"], c:["#5a1414","#120404","#ffb070"],
+    syn:"Deux cents ans avant Game of Thrones, la famille Targaryen se déchire pour le Trône de fer, avec ses dragons." },
+].map(d => ({ ...d, recent: true }));
+const MORE = [
+  { id:"fallout", type:"serie", title:"Fallout", year:2024, len:"Depuis 2024", age:"16+", by:"Jonathan Nolan, Lisa Joy", genres:["Science-Fiction","Aventure"], c:["#3a5a2a","#0c1208","#f2d24a"], recent:true,
+    syn:"Deux cents ans après l'apocalypse nucléaire, une jeune femme quitte son abri souterrain et découvre un monde extérieur sauvage et absurde." },
+  { id:"theboys", type:"serie", title:"The Boys", year:2019, len:"Depuis 2019", age:"16+", by:"Eric Kripke", genres:["Action","Comédie"], c:["#6a1a1a","#140505","#ffd04a"], recent:true,
+    syn:"Dans un monde où les super-héros sont des stars corrompues, un groupe d'hommes ordinaires décide de les faire tomber." },
+  { id:"onepiecela", type:"serie", title:"One Piece (série)", year:2023, len:"Depuis 2023", age:"12+", by:"Matt Owens, Steven Maeda", genres:["Aventure","Comédie"], c:["#1a4a8a","#061226","#ffcf4a"], recent:true,
+    syn:"Monkey D. Luffy, un jeune pirate au corps élastique, rassemble un équipage pour trouver le trésor légendaire One Piece. L'adaptation en prises de vues réelles." },
+  { id:"andor", type:"serie", title:"Andor", year:2022, end:2025, len:"2 saisons", age:"12+", by:"Tony Gilroy", genres:["Science-Fiction","Thriller"], c:["#3a3a4a","#0a0a10","#e0b07a"], recent:true,
+    syn:"Comment Cassian Andor, petit voleur sans cause, devient l'un des premiers héros de la rébellion contre l'Empire." },
+  { id:"bridgerton", type:"serie", title:"La Chronique des Bridgerton", year:2020, len:"Depuis 2020", age:"12+", by:"Chris Van Dusen", genres:["Romance","Drame"], c:["#5a7aa8","#101826","#f6d6e6"], recent:true,
+    syn:"Dans la haute société londonienne du XIXᵉ siècle, les huit enfants Bridgerton cherchent l'amour, sous la plume d'une mystérieuse chroniqueuse." },
+  { id:"witcher", type:"serie", title:"The Witcher", year:2019, len:"Depuis 2019", age:"16+", by:"Lauren Schmidt Hissrich", genres:["Aventure","Action"], c:["#4a4a3a","#0e0e0a","#d8c8a0"], recent:true,
+    syn:"Geralt de Riv, chasseur de monstres solitaire, voit son destin lié à celui d'une sorcière puissante et d'une jeune princesse en fuite." },
+  { id:"adolescence", type:"serie", title:"Adolescence", year:2025, len:"Mini-série", age:"16+", by:"Jack Thorne, Stephen Graham", genres:["Drame","Thriller"], c:["#2a3a4a","#080c10","#c8d8e8"], recent:true,
+    syn:"Un garçon de 13 ans est arrêté pour le meurtre d'une camarade. Quatre épisodes, chacun filmé en un seul plan, pour comprendre comment on en est arrivé là." },
+  { id:"tedlasso", type:"serie", title:"Ted Lasso", year:2020, end:2023, len:"3 saisons", age:"Tous publics", by:"Jason Sudeikis, Bill Lawrence, Brendan Hunt, Joe Kelly", genres:["Comédie","Drame"], c:["#1a4a8a","#061226","#f2e05a"], recent:true,
+    syn:"Un entraîneur de football américain, optimiste à toute épreuve, est engagé pour diriger un club de football anglais. Sans rien connaître au football." },
+  { id:"babyreindeer", type:"serie", title:"Mon petit renne", year:2024, len:"Mini-série", age:"16+", by:"Richard Gadd", genres:["Drame","Thriller"], c:["#5a2a2a","#120808","#e8c8a8"], recent:true,
+    syn:"Un humoriste raté offre une tasse de thé à une inconnue dans un bar. Elle va le harceler pendant des années. Inspiré de l'histoire vraie de son auteur." },
+  { id:"whitelotus", type:"serie", title:"The White Lotus", year:2021, len:"Depuis 2021", age:"16+", by:"Mike White", genres:["Comédie","Drame"], c:["#2a6a5a","#08140f","#f6e0b0"], recent:true,
+    syn:"Une semaine dans un hôtel de luxe, où les vacances de riches clients dérapent peu à peu, jusqu'à un mort." },
+  { id:"demonslayer", type:"serie", title:"Demon Slayer", year:2019, len:"Depuis 2019", age:"12+", by:"Koyoharu Gotōge (manga), studio ufotable", genres:["Animation","Action"], c:["#1a4a3a","#06120e","#ff7a5a"], anime:true, recent:true,
+    syn:"Après le massacre de sa famille, Tanjirō devient pourfendeur de démons pour rendre son humanité à sa petite sœur, transformée en démon." },
+  { id:"jjk", type:"serie", title:"Jujutsu Kaisen", year:2020, len:"Depuis 2020", age:"13+", by:"Gege Akutami (manga), studio MAPPA", genres:["Animation","Action","Horreur"], c:["#2a1a4a","#08050f","#6ab0ff"], anime:true, recent:true,
+    syn:"Un lycéen avale le doigt d'un démon légendaire pour sauver ses amis, et se retrouve au cœur du monde des exorcistes." },
+  { id:"aot", type:"serie", title:"L'Attaque des Titans", year:2013, end:2023, len:"4 saisons", age:"16+", by:"Hajime Isayama (manga), studios Wit et MAPPA", genres:["Animation","Action","Drame"], c:["#5a3a2a","#120c08","#e8d0a0"], anime:true, recent:true,
+    syn:"L'humanité survit derrière d'immenses murs pour se protéger des Titans, des géants dévoreurs d'hommes. Jusqu'au jour où le mur tombe." },
+  { id:"onepiece", type:"serie", title:"One Piece", year:1999, len:"Depuis 1999", age:"10+", by:"Eiichirō Oda (manga), Toei Animation", genres:["Animation","Aventure","Comédie"], c:["#a83a1a","#200a04","#ffe04a"], anime:true, recent:true,
+    syn:"Luffy et son équipage parcourent les mers à la recherche du trésor ultime, le One Piece, pour qu'il devienne le roi des pirates." },
+  { id:"frieren", type:"serie", title:"Frieren", year:2023, len:"Depuis 2023", age:"10+", by:"Kanehito Yamada, Tsukasa Abe (manga), studio Madhouse", genres:["Animation","Aventure","Drame"], c:["#3a6a7a","#0a1418","#f0f6e8"], anime:true, recent:true,
+    syn:"Après la victoire contre le Roi démon, une magicienne elfe, qui vit plus de mille ans, part à nouveau sur les routes pour comprendre les humains." },
+  { id:"spyfamily", type:"serie", title:"Spy x Family", year:2022, len:"Depuis 2022", age:"Tous publics", by:"Tatsuya Endō (manga), studios Wit et CloverWorks", genres:["Animation","Comédie","Action"], c:["#2a4a2a","#081008","#ffb0c8"], anime:true, recent:true,
+    syn:"Un espion se crée une fausse famille pour sa mission, sans savoir que sa femme est une tueuse à gages et sa fille adoptive une télépathe." },
+  { id:"chainsawman", type:"serie", title:"Chainsaw Man", year:2022, len:"Depuis 2022", age:"16+", by:"Tatsuki Fujimoto (manga), studio MAPPA", genres:["Animation","Action","Horreur"], c:["#8a2a1a","#1a0604","#ffb04a"], anime:true, recent:true,
+    syn:"Couvert de dettes, Denji fusionne avec son chien-démon tronçonneuse et devient chasseur de démons pour le gouvernement." },
+  { id:"sololeveling", type:"serie", title:"Solo Leveling", year:2024, len:"Depuis 2024", age:"13+", by:"Chugong (webtoon), studio A-1 Pictures", genres:["Animation","Action"], c:["#1a2a5a","#050814","#7ab0ff"], anime:true, recent:true,
+    syn:"Le chasseur le plus faible du monde reçoit un mystérieux pouvoir qui lui permet de devenir plus fort à chaque combat." },
+  { id:"dandadan", type:"serie", title:"Dandadan", year:2024, len:"Depuis 2024", age:"13+", by:"Yukinobu Tatsu (manga), studio Science SARU", genres:["Animation","Comédie","Science-Fiction"], c:["#5a1a6a","#120516","#4affc8"], anime:true, recent:true,
+    syn:"Une lycéenne qui croit aux fantômes et un garçon qui croit aux extraterrestres se lancent un défi. Ils avaient raison tous les deux." },
+  { id:"bluelock", type:"serie", title:"Blue Lock", year:2022, len:"Depuis 2022", age:"10+", by:"Muneyuki Kaneshiro, Yūsuke Nomura (manga), studio 8bit", genres:["Animation","Action"], c:["#1a3a8a","#050c20","#4af0ff"], anime:true, recent:true,
+    syn:"Pour créer le meilleur attaquant du monde, le Japon enferme 300 jeunes footballeurs dans un centre où un seul sortira vainqueur." },
+  { id:"deathnote", type:"serie", title:"Death Note", year:2006, end:2007, len:"1 saison", age:"13+", by:"Tsugumi Ōba, Takeshi Obata (manga), studio Madhouse", genres:["Animation","Thriller"], c:["#1a1a1a","#050505","#ff3a3a"], anime:true, recent:true,
+    syn:"Un lycéen trouve un cahier qui tue toute personne dont on y écrit le nom. Il décide de purifier le monde, et un détective de génie se lance à sa poursuite." },
+  { id:"fmab", type:"serie", title:"Fullmetal Alchemist: Brotherhood", year:2009, end:2010, len:"1 saison", age:"12+", by:"Hiromu Arakawa (manga), studio Bones", genres:["Animation","Aventure","Action"], c:["#8a2a1a","#1a0806","#f2c86a"], anime:true, recent:true,
+    syn:"Deux frères alchimistes paient très cher une tentative de ressusciter leur mère, et cherchent la pierre philosophale pour réparer leur erreur." },
+];
+const watchWhere = d => "https://www.justwatch.com/fr/recherche?q=" + encodeURIComponent(d.title);
+const DATA = [...FREE, ...RECENT, ...MORE,
+  { id:"interstellar", type:"film", title:"Interstellar", year:2014, len:"2h 49min", age:"10+", by:"Christopher Nolan", genres:["Science-Fiction","Drame","Aventure"], c:["#2a3346","#03050a","#f5d7a1"], badge:"Film culte",
+    tag:"Au-delà des limites de l'univers, un voyage où l'amour défie le temps.",
+    syn:"Alors que la Terre se meurt, un ancien pilote part à travers un trou de ver pour trouver une nouvelle planète habitable, laissant ses enfants derrière lui." },
+  { id:"dune", type:"film", title:"Dune", year:2021, len:"2h 35min", age:"13+", by:"Denis Villeneuve", genres:["Science-Fiction","Aventure"], c:["#a0612a","#1e0f06","#f3d29b"], badge:"À l'affiche",
+    tag:"Sur Arrakis, la planète des sables, l'héritier d'une grande maison affronte son destin.",
+    syn:"Sur la planète désertique Arrakis, seule source de l'épice la plus précieuse de l'univers, le jeune héritier d'une grande famille affronte trahison et destin." },
+  { id:"stranger", type:"serie", title:"Stranger Things", year:2016, end:2025, len:"5 saisons", age:"13+", by:"Matt et Ross Duffer", genres:["Science-Fiction","Horreur"], c:["#6b1414","#0d0404","#ff5a4a"], badge:"Série événement",
+    tag:"Indiana, années 80 : une disparition, des expériences secrètes et un monde à l'envers.",
+    syn:"Dans une petite ville de l'Indiana des années 80, la disparition d'un garçon révèle des expériences secrètes et un monde parallèle menaçant." },
+  { id:"inception", type:"film", title:"Inception", year:2010, len:"2h 28min", age:"13+", by:"Christopher Nolan", genres:["Science-Fiction","Action","Thriller"], c:["#1b3a5c","#060b14","#6aa6d8"], badge:"Film culte",
+    tag:"Voler un secret, c'est facile. Implanter une idée, c'est une autre histoire.",
+    syn:"Un voleur spécialisé dans l'extraction de secrets à l'intérieur des rêves reçoit une mission inverse : implanter une idée dans l'esprit d'un héritier." },
+  { id:"lupin", type:"serie", title:"Lupin", year:2021, len:"3 parties", age:"13+", by:"George Kay, François Uzan", genres:["Thriller","Aventure"], c:["#1d2b4a","#070b16","#e0b86a"], badge:"Série française",
+    tag:"Gentleman cambrioleur, Assane Diop prépare la vengeance de son père.",
+    syn:"Inspiré par les aventures d'Arsène Lupin, Assane Diop prépare une vengeance spectaculaire contre la famille qui a brisé la vie de son père." },
+  { id:"chihiro", type:"film", title:"Le Voyage de Chihiro", year:2001, len:"2h 05min", age:"Tous publics", by:"Hayao Miyazaki", genres:["Animation","Aventure"], c:["#7b2f3b","#14202e","#f2c46b"], badge:"Chef-d'œuvre",
+    tag:"Perdue dans le monde des esprits, une fillette doit sauver ses parents.",
+    syn:"Égarée dans un monde peuplé d'esprits, une fillette doit travailler dans un établissement de bains pour sauver ses parents changés en cochons." },
+  { id:"parasite", type:"film", title:"Parasite", year:2019, len:"2h 12min", age:"16+", by:"Bong Joon-ho", genres:["Thriller","Drame"], c:["#3d4a2a","#0f120a","#c9c27a"],
+    syn:"Une famille sans le sou s'infiltre, un membre après l'autre, au service d'une riche famille de Séoul. Jusqu'à ce qu'un secret enfoui dans la maison change tout." },
+  { id:"amelie", type:"film", title:"Le Fabuleux Destin d'Amélie Poulain", year:2001, len:"2h 02min", age:"Tous publics", by:"Jean-Pierre Jeunet", genres:["Comédie","Romance"], c:["#8a1f25","#220a0c","#e7b04a"],
+    syn:"À Montmartre, une serveuse rêveuse décide de transformer en secret la vie des gens qui l'entourent, tout en fuyant la sienne." },
+  { id:"intouchables", type:"film", title:"Intouchables", year:2011, len:"1h 52min", age:"Tous publics", by:"Éric Toledano, Olivier Nakache", genres:["Comédie","Drame"], c:["#2c4f6b","#0c1620","#f0d9a8"],
+    syn:"Un aristocrate tétraplégique engage comme aide à domicile un jeune homme de banlieue tout juste sorti de prison. Une amitié improbable commence." },
+  { id:"lalaland", type:"film", title:"La La Land", year:2016, len:"2h 08min", age:"Tous publics", by:"Damien Chazelle", genres:["Romance","Comédie"], c:["#3b2a6b","#0c091c","#f2a0c6"],
+    syn:"À Los Angeles, une aspirante actrice et un pianiste de jazz tombent amoureux, pendant que leurs ambitions les tirent dans des directions opposées." },
+  { id:"breakingbad", type:"serie", title:"Breaking Bad", year:2008, end:2013, len:"5 saisons", age:"16+", by:"Vince Gilligan", genres:["Drame","Thriller"], c:["#3f5a2a","#0e1409","#e3d36a"],
+    syn:"Un professeur de chimie atteint d'un cancer se lance dans la fabrication de méthamphétamine pour assurer l'avenir de sa famille, et y prend goût." },
+  { id:"bdl", type:"serie", title:"Le Bureau des Légendes", year:2015, end:2020, len:"5 saisons", age:"12+", by:"Éric Rochant", genres:["Thriller","Drame"], c:["#2d3640","#090c10","#b9c4cf"],
+    syn:"Au cœur de la DGSE, le quotidien des agents clandestins qui vivent sous une fausse identité, et de celui qui revient de six ans de mission à Damas." },
+  { id:"dark", type:"serie", title:"Dark", year:2017, end:2020, len:"3 saisons", age:"16+", by:"Baran bo Odar, Jantje Friese", genres:["Science-Fiction","Thriller"], c:["#26332f","#060908","#9fb8ad"],
+    syn:"La disparition d'enfants dans une ville allemande met au jour les liens entre quatre familles, sur plusieurs générations séparées de 33 ans." },
+  { id:"crown", type:"serie", title:"The Crown", year:2016, end:2023, len:"6 saisons", age:"13+", by:"Peter Morgan", genres:["Drame"], c:["#4a1d3a","#12070e","#e5c27a"],
+    syn:"Le règne d'Élisabeth II, de son mariage à la fin du XXᵉ siècle, et les crises politiques et intimes qui ont façonné la monarchie britannique." },
+];
+const FEATURED = ["general","sintel","charade","bigbuck","girlfriday","nuit"];
+const GENRES = [
+  ["Tous les films", '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="7.5" r="2"/><circle cx="12" cy="16.5" r="2"/><circle cx="7.5" cy="12" r="2"/><circle cx="16.5" cy="12" r="2"/>'],
+  ["Action", '<rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 9 5 4l16 2-1 3M8 4.5 7 8.5M13 5l-1 4"/>'],
+  ["Drame", '<path d="M4 5c5-2 11-2 16 0v6c0 5-4 9-8 9s-8-4-8-9z"/><path d="M8 10h2M14 10h2M9 16c2-1.5 4-1.5 6 0"/>'],
+  ["Comédie", '<path d="M4 5c5-2 11-2 16 0v6c0 5-4 9-8 9s-8-4-8-9z"/><path d="M8 10h2M14 10h2M9 14c2 2 4 2 6 0"/>'],
+  ["Horreur", '<path d="M5 21V11a7 7 0 0 1 14 0v10l-2.5-2-2.3 2-2.2-2-2.2 2-2.3-2z"/><circle cx="9.5" cy="11" r="1"/><circle cx="14.5" cy="11" r="1"/>'],
+  ["Science-Fiction", '<path d="M14 4c3-1 5-1 6 0 1 1 1 3 0 6l-7 7-6-6z"/><path d="m7 11-3 1 2 2M13 17l-1 3-2-2M7 17l-3 3"/><circle cx="15" cy="9" r="1.5"/>'],
+  ["Aventure", '<path d="M3 18 5 8l4.5 4L12 5l2.5 7L19 8l2 10z"/><path d="M3 21h18"/>'],
+  ["Animation", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'],
+  ["Thriller", '<path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3l3 18 3-18"/>'],
+  ["Romance", '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>'],
+];
+
+const $ = s => document.querySelector(s);
+const ICON = (p, cls = "i") => `<svg class="${cls}" viewBox="0 0 24 24">${p}</svg>`;
+const I = {
+  play: '<path d="M7 4v16l13-8z" fill="currentColor"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  check: '<path d="m5 12 5 5 9-10"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  tag: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l-3 3"/>',
+  star: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z" fill="currentColor"/>',
+  cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  x: '<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+};
+const state = { view: "accueil", genre: null, q: "", hero: 0 };
+let saved = new Set();
+try { saved = new Set(JSON.parse(localStorage.getItem("so-list") || "[]")); } catch (e) {}
+const persist = () => { try { localStorage.setItem("so-list", JSON.stringify([...saved])); } catch (e) {} };
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const years = d => d.type === "serie" ? `${d.year}–${d.end || "…"}` : `${d.year}`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const byId = id => DATA.find(x => x.id === id);
+const trailer = d => "https://www.youtube.com/results?search_query=" + encodeURIComponent(`${d.title} ${d.year} bande annonce officielle VF`);
+
+function poster(d) {
+  const [a, b, glow] = d.c;
+  const seed = [...d.id].reduce((n, ch) => n + ch.charCodeAt(0), 0);
+  const x = 15 + seed % 55, y = 5 + (seed * 7) % 30, r = 55 + seed % 35;
+  const longest = Math.max(...d.title.split(/\s+/).map(w => w.length));
+  const fs = Math.round(Math.min(36, 300 / Math.max(longest, 6), d.title.length > 22 ? 22 : 36));
+  return `<div class="poster" style="background:linear-gradient(170deg, ${a}, ${b} 80%)">
+    <span class="shape" style="left:${x - r/2}%;top:${y}%;width:${r}%;aspect-ratio:1;background:radial-gradient(circle, ${glow} 0%, transparent 68%);opacity:.8"></span>
+    <span class="shape" style="left:${(x + 35) % 80}%;top:${y + 25}%;width:${r/2.2}%;aspect-ratio:1;border:1px solid ${glow};opacity:.35"></span>
+    <span class="kind">${d.type === "film" ? "Film" : "Série"}</span>${d.free ? '<span class="full">En entier</span>' : ""}
+    ${saved.has(d.id) ? `<span class="saved" title="Dans ma liste">${ICON(I.check)}</span>` : ""}
+    <div class="ptitle" style="font-size:${fs}px;color:${glow}">${esc(d.title)}</div>
+  </div>`;
+}
+const card = d => `<button class="card" data-open="${d.id}" aria-label="${esc(d.title)}">${poster(d)}<span class="sub">${years(d)} · ${d.len}</span></button>`;
+
+/* Hero background: star field + glowing ring, in each title's colors */
+function drawHero(d) {
+  const cv = $("#hero-canvas"), box = cv.getBoundingClientRect();
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.max(1, box.width * dpr); cv.height = Math.max(1, box.height * dpr);
+  const ctx = cv.getContext("2d"); ctx.scale(dpr, dpr);
+  const W = box.width, H = box.height, [a, b, glow] = d.c;
+  const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, b); g.addColorStop(.6, a); g.addColorStop(1, b);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  let s = [...d.id].reduce((n, ch) => n * 31 + ch.charCodeAt(0), 7) >>> 0;
+  const rnd = () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+  for (let i = 0; i < 260; i++) { ctx.fillStyle = `rgba(255,255,255,${rnd() * .7})`; ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 1.3, 0, 7); ctx.fill(); }
+  const cx = W * (W < 760 ? .7 : .72), cy = H * .38, R = Math.min(W, H) * .32;
+  const halo = ctx.createRadialGradient(cx, cy, R * .3, cx, cy, R * 1.9);
+  halo.addColorStop(0, glow + "66"); halo.addColorStop(1, "transparent");
+  ctx.fillStyle = halo; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(-.25);
+  for (let k = 0; k < 6; k++) { ctx.strokeStyle = glow; ctx.globalAlpha = .12 + k * .05; ctx.lineWidth = 14 - k * 2; ctx.shadowColor = glow; ctx.shadowBlur = 30; ctx.beginPath(); ctx.ellipse(0, 0, R * 1.45, R * .38, 0, 0, 7); ctx.stroke(); }
+  ctx.globalAlpha = 1; ctx.shadowBlur = 40; ctx.shadowColor = glow; ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(0, 0, R * .62, 0, 7); ctx.fill();
+  ctx.shadowBlur = 0; ctx.strokeStyle = glow; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, R * .64, 0, 7); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.beginPath(); ctx.moveTo(0, H); ctx.quadraticCurveTo(W * .5, H * .78, W, H * .86); ctx.lineTo(W, H); ctx.fill();
+}
+
+function renderHero() {
+  const d = byId(FEATURED[state.hero]);
+  $("#hero-text").innerHTML = `
+    <span class="badge"><span class="dot">${ICON(I.star)}</span>${esc(d.badge || (d.type === "film" ? "Film" : "Série"))}</span>
+    <h1>${esc(d.title)}</h1>
+    <p class="tag">${esc(d.tag || d.syn)}</p>
+    <div class="facts">
+      <span>${ICON(I.cal)}${years(d)}</span><i class="sep"></i>
+      <span>${ICON(I.clock)}${d.len}</span><i class="sep"></i>
+      <span class="age">${esc(d.age)}</span><i class="sep"></i>
+      <span>${ICON(I.tag)}${d.genres[0]}</span>${d.free ? `<i class="sep"></i><span>${ICON(I.play)}Gratuit, en entier</span>` : ""}
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="hero-watch" data-open="${d.id}" data-autoplay="1">${ICON(I.play)}Regarder maintenant</button>
+      <button class="btn" id="hero-save" data-save="${d.id}">${ICON(saved.has(d.id) ? I.check : I.plus)}${saved.has(d.id) ? "Dans ma liste" : "Ajouter à ma liste"}</button>
+    </div>`;
+  $("#dots").innerHTML = FEATURED.map((_, i) => `<button data-dot="${i}" aria-label="Titre ${i + 1}" aria-current="${i === state.hero}"></button>`).join("");
+  drawHero(d);
+}
+
+function renderGenreBar() {
+  $("#genre-bar").innerHTML = GENRES.map(([g, p], i) => {
+    const on = i === 0 ? state.genre === null : state.genre === g;
+    return `<button data-genre="${i === 0 ? "" : esc(g)}" aria-pressed="${on}">${ICON(p, "")}<span>${esc(g)}</span></button>`;
+  }).join("");
+}
+
+function section(title, list, more) {
+  return `<section><div class="row-head"><h2>${title}</h2>${more ? `<button class="more" data-view="${more}">Voir plus ${ICON(I.arrow)}</button>` : ""}</div>
+    ${list.length ? `<div class="row">${list.map(card).join("")}</div>` : `<div class="empty">Aucun titre dans ce genre pour l'instant.</div>`}</section>`;
+}
+
+function renderMain() {
+  const q = norm(state.q.trim());
+  const g = state.genre;
+  const inGenre = d => !g || d.genres.includes(g);
+  $("#home").hidden = !(state.view === "accueil" && !q);
+  let html = "";
+  if (q) {
+    const list = DATA.filter(d => norm([d.title, d.by, ...d.genres].join(" ")).includes(q));
+    html = `<section><div class="row-head"><h2>Résultats pour « ${esc(state.q.trim())} »</h2></div>
+      ${list.length ? `<div class="grid">${list.map(card).join("")}</div>` : `<div class="empty">Aucun titre ne correspond. Essaie un autre mot.</div>`}</section>`;
+  } else if (state.view === "accueil") {
+    const films = DATA.filter(d => d.type === "film" && inGenre(d));
+    const series = DATA.filter(d => d.type === "serie" && inGenre(d));
+    html = (g ? `<div class="row-head"><h2>${esc(g)}</h2></div>` : "") +
+      section("Films complets à regarder", DATA.filter(d => d.free && d.type === "film" && !d.genres.includes("Animation") && inGenre(d)), "films") +
+      section("Animation libre", DATA.filter(d => d.free && d.type === "film" && d.genres.includes("Animation") && inGenre(d)), null) +
+      section("Séries classiques", DATA.filter(d => d.free && d.type === "serie" && inGenre(d)), "series") +
+      section("Films récents", films.filter(d => d.recent), "films") +
+      section("Séries récentes", series.filter(d => d.recent && !d.anime), "series") +
+      section("Animés", series.filter(d => d.anime), "series") +
+      section("Films cultes", films.filter(d => !d.free && !d.recent), "films") +
+      section("Séries cultes", series.filter(d => !d.free && !d.recent), "series");
+  } else if (state.view === "a-propos") {
+    html = `<section class="about"><h2>À propos</h2>
+      <p>Salle Obscure réunit des films et des séries que l'on peut regarder en entier gratuitement et légalement, et un catalogue de grands titres avec leur bande-annonce officielle.</p>
+      <p>Les titres marqués « En entier » sont soit dans le domaine public aux États-Unis (films anciens publiés sans renouvellement de droits), soit sous licence Creative Commons BY, comme les films d'animation de la Blender Foundation. Les vidéos sont hébergées par <a href="https://archive.org" target="_blank" rel="noopener">Internet Archive</a>. La source et la licence sont indiquées sur chaque fiche.</p>
+      <p>Tu peux aussi y regarder tes propres vidéos depuis la fiche d'un titre.</p></section>`;
+  } else {
+    const list = DATA.filter(d => state.view === "films" ? d.type === "film" : state.view === "series" ? d.type === "serie" : saved.has(d.id));
+    const title = { films: "Tous les films", series: "Toutes les séries", "ma-liste": "Ma liste" }[state.view];
+    html = `<section><div class="row-head"><h2>${title}</h2><span class="sub" style="color:var(--muted)">${list.length} titre${list.length > 1 ? "s" : ""}</span></div>
+      ${list.length ? `<div class="grid">${list.map(card).join("")}</div>` : `<div class="empty">Ta liste est vide. Ouvre une fiche et clique sur « Ajouter à ma liste ».</div>`}</section>`;
+  }
+  $("#main").innerHTML = html;
+  document.querySelectorAll("nav.menu button").forEach(b => b.toggleAttribute("aria-current", b.dataset.view === state.view && !q));
+  document.querySelectorAll("nav.menu button[aria-current]").forEach(b => b.setAttribute("aria-current", "page"));
+}
+
+/* Detail + player */
+const VIDEOS = {};
+function playerHTML(d) {
+  const v = VIDEOS[d.id];
+  if (!v && d.free && d.free.lic === PD_US && !LECTURE_DOMAINE_PUBLIC_US) return `<h3>Regarder sur Internet Archive</h3>
+    <div class="drop"><span>Ce film est dans le domaine public aux États-Unis. Tu peux le regarder gratuitement sur Internet Archive.</span>
+    <a class="btn primary" href="${d.free.page}" target="_blank" rel="noopener">${ICON(I.play)}Ouvrir sur Internet Archive</a></div>`;
+  if (!v && d.free) return `<h3>${d.free.ep ? esc(d.free.ep) : "Regarder le film en entier"}</h3>
+    <video id="vid" src="${d.free.url}" controls playsinline preload="metadata"></video>
+    <div class="lic" id="vid-fallback" hidden>La lecture intégrée n'est pas disponible dans cet aperçu. Elle fonctionnera une fois le site mis en ligne. En attendant, <a href="${d.free.page}" target="_blank" rel="noopener">regarde-le sur Internet Archive</a>.</div>
+    <div class="lic">${d.free.lic} · <a href="${d.free.page}" target="_blank" rel="noopener">Source : ${d.free.src}</a>${d.free.credit ? ` · ${esc(d.free.credit)}` : ""}</div>`;
+  if (v) return `<h3>Lecture</h3><video id="vid" src="${v.url}" controls playsinline></video>
+    <div class="facts"><span>${esc(v.name)}</span><button class="chip" data-remove="${d.id}">Retirer la vidéo</button></div>`;
+  return `<h3>Regarder</h3><div class="drop" id="drop">
+      <span>Aucune vidéo pour ce titre. Glisse un fichier ici ou choisis-le.</span>
+      <label class="btn primary" for="file-${d.id}">${ICON(I.play)}Choisir une vidéo<input id="file-${d.id}" type="file" accept="video/*" data-file="${d.id}"></label>
+      <small>Uniquement des vidéos dont tu as les droits : tes propres vidéos ou des contenus libres de droits. MP4 conseillé.</small>
+    </div>`;
+}
+function openDetail(id) {
+  const d = byId(id), dlg = $("#dlg");
+  dlg.innerHTML = `<button class="close" id="dlg-close" aria-label="Fermer">${ICON(I.x)}</button>
+    <div class="dlg">${poster(d)}
+      <div>
+        <span class="badge"><span class="dot">${ICON(I.star)}</span>${d.type === "film" ? "Film" : "Série"}</span>
+        <h2 id="dlg-title">${esc(d.title)}</h2>
+        <p>${esc(d.syn)}</p>
+        <dl>
+          <dt>${d.type === "film" ? "Sortie" : "Diffusion"}</dt><dd>${years(d)}</dd>
+          <dt>${d.type === "film" ? "Durée" : "Format"}</dt><dd>${d.len}</dd>
+          <dt>${d.type === "film" ? "Réalisation" : "Création"}</dt><dd>${esc(d.by)}</dd>
+          <dt>Âge conseillé</dt><dd>${esc(d.age)}</dd>
+          <dt>Genres</dt><dd>${d.genres.join(", ")}</dd>
+          ${d.free ? `<dt>Licence</dt><dd><a href="${d.free.licUrl}" target="_blank" rel="noopener" style="color:var(--accent-2)">${d.free.lic}</a></dd>
+          <dt>Source</dt><dd><a href="${d.free.page}" target="_blank" rel="noopener" style="color:var(--accent-2)">${d.free.src}</a>${d.free.credit ? ` · ${esc(d.free.credit)}` : ""}</dd>` : ""}
+        </dl>
+        <div class="actions">
+          ${d.free ? `<button class="btn primary" data-play="${d.id}">${ICON(I.play)}Regarder en entier</button>` : `<a class="btn primary" href="${trailer(d)}" target="_blank" rel="noopener">${ICON(I.play)}Bande-annonce</a><a class="btn" href="${watchWhere(d)}" target="_blank" rel="noopener">Où le regarder</a>`}
+          <button class="btn" id="dlg-save" data-save="${d.id}">${ICON(saved.has(d.id) ? I.check : I.plus)}${saved.has(d.id) ? "Dans ma liste" : "Ma liste"}</button>
+        </div>
+      </div></div>
+    <div class="player" id="player">${playerHTML(d)}</div>`;
+  bindDrop(d.id); bindVideo();
+  if (!dlg.open) dlg.showModal();
+}
+function bindVideo() {
+  const v = $("#vid"), fb = $("#vid-fallback"); if (!v || !fb) return;
+  v.addEventListener("error", () => { v.hidden = true; fb.hidden = false; });
+}
+function playNow() {
+  const v = $("#vid"); if (!v) return;
+  v.scrollIntoView({ behavior: "smooth", block: "center" });
+  v.play().catch(() => {});
+}
+function setVideo(id, file) {
+  if (!file || !file.type.startsWith("video/")) return;
+  if (VIDEOS[id]) URL.revokeObjectURL(VIDEOS[id].url);
+  VIDEOS[id] = { url: URL.createObjectURL(file), name: file.name };
+  $("#player").innerHTML = playerHTML(byId(id));
+  const v = $("#vid"); if (v) v.play().catch(() => {});
+}
+function bindDrop(id) {
+  const z = $("#drop"); if (!z) return;
+  z.addEventListener("dragover", e => { e.preventDefault(); z.classList.add("over"); });
+  z.addEventListener("dragleave", () => z.classList.remove("over"));
+  z.addEventListener("drop", e => { e.preventDefault(); z.classList.remove("over"); setVideo(id, e.dataTransfer.files[0]); });
+}
+
+/* Events */
+function go(view) {
+  state.view = view; state.q = ""; $("#q").value = "";
+  try { history.replaceState(null, "", "#" + view); } catch (e) {}
+  renderMain(); window.scrollTo({ top: 0 });
+}
+function setHero(i) { state.hero = (i + FEATURED.length) % FEATURED.length; renderHero(); }
+let timer = setInterval(() => setHero(state.hero + 1), 8000);
+const resetTimer = () => { clearInterval(timer); timer = setInterval(() => setHero(state.hero + 1), 8000); };
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-play],[data-open],[data-save],[data-view],[data-genre],[data-dot],[data-remove],#dlg-close,#prev,#next");
+  if (!t) { if (e.target === $("#dlg")) $("#dlg").close(); return; }
+  if (t.id === "dlg-close") return $("#dlg").close();
+  if (t.id === "prev" || t.id === "next") { setHero(state.hero + (t.id === "next" ? 1 : -1)); return resetTimer(); }
+  if (t.dataset.dot) { setHero(+t.dataset.dot); return resetTimer(); }
+  if (t.dataset.remove) { const id = t.dataset.remove; URL.revokeObjectURL(VIDEOS[id].url); delete VIDEOS[id]; $("#player").innerHTML = playerHTML(byId(id)); return bindDrop(id); }
+  if (t.dataset.save) {
+    const id = t.dataset.save; saved.has(id) ? saved.delete(id) : saved.add(id); persist();
+    renderHero(); renderMain(); if ($("#dlg").open) openDetail(id); return;
+  }
+  if (t.dataset.play) return playNow();
+  if (t.dataset.open) { openDetail(t.dataset.open); if (t.dataset.autoplay && byId(t.dataset.open).free) playNow(); return; }
+  if (t.dataset.view) return go(t.dataset.view);
+  if ("genre" in t.dataset) {
+    state.genre = t.dataset.genre || null; renderGenreBar(); renderMain();
+    $("#main").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+});
+document.addEventListener("change", e => { if (e.target.dataset && e.target.dataset.file) setVideo(e.target.dataset.file, e.target.files[0]); });
+$("#dlg").addEventListener("close", () => { const v = $("#vid"); if (v) v.pause(); });
+$("#q").addEventListener("input", e => { state.q = e.target.value; renderMain(); });
+$(".logo").addEventListener("click", e => { e.preventDefault(); go("accueil"); });
+window.addEventListener("resize", () => drawHero(byId(FEATURED[state.hero])));
+window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (["accueil","films","series","ma-liste","a-propos"].includes(v) && v !== state.view) go(v); });
+
+const start = location.hash.slice(1);
+if (["films","series","ma-liste","a-propos"].includes(start)) state.view = start;
+renderHero(); renderGenreBar(); renderMain();
+</script>
+
+</body>
+</html>
